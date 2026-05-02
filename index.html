@@ -678,16 +678,52 @@ select.inp{cursor:pointer;}
 <!-- ===== TOAST ===== -->
 <div id="toastBox"></div>
 
-<!-- ===== PWA BANNER ===== -->
-<div id="pwaBar">
-  <div class="pwa-inner">
-    <div class="pwa-ico" style="position:relative;z-index:1;">⚡</div>
-    <div class="pwa-txt">
-      <div class="pwa-title">ZAP Install Karein</div>
-      <div class="pwa-sub">Phone pe real app jaisa experience</div>
+<!-- ===== PWA + PUSH BANNER ===== -->
+<div id="pwaBar" style="position:fixed;bottom:80px;left:0;right:0;z-index:800;padding:0 12px;display:none;">
+  <div style="background:linear-gradient(145deg,rgba(20,15,10,.98),rgba(14,10,6,.99));border:1px solid rgba(200,149,108,.4);border-top:2px solid var(--gold);border-radius:16px;padding:0;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.7);position:relative;">
+    <!-- Gold shimmer -->
+    <div style="position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(200,149,108,.9),transparent);"></div>
+    <!-- Carbon texture -->
+    <div style="position:absolute;inset:0;background:var(--carbon);pointer-events:none;opacity:.4;"></div>
+    
+    <!-- Install Row -->
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(200,149,108,.1);position:relative;z-index:1;">
+      <div style="width:38px;height:38px;background:var(--grad-gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📲</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:800;color:var(--text);">ZAP App Install Karein</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px;">Home screen pe add karein — real app jaisa</div>
+      </div>
+      <button onclick="installPWA()" style="background:var(--grad-gold);color:var(--dark);border:none;border-radius:9px;padding:8px 14px;font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0;font-family:'Cinzel',serif;letter-spacing:.5px;">INSTALL</button>
+      <button onclick="document.getElementById('pwaBar').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px;flex-shrink:0;">✕</button>
     </div>
-    <button onclick="installPWA()" style="background:var(--grad-gold);color:var(--dark);border:none;border-radius:9px;padding:8px 14px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;font-family:'Nunito',sans-serif;position:relative;z-index:1;">Install</button>
-    <button onclick="document.getElementById('pwaBar').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;position:relative;z-index:1;">✕</button>
+    
+    <!-- Push Notification Row -->
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;position:relative;z-index:1;">
+      <div style="width:38px;height:38px;background:rgba(200,149,108,.1);border:1px solid rgba(200,149,108,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔔</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:800;color:var(--text);">Push Notifications</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px;">Orders, deals ki instant notification</div>
+      </div>
+      <button onclick="togglePushNotif(this)" id="pushMainBtn" style="background:rgba(200,149,108,.1);border:1px solid rgba(200,149,108,.3);color:var(--gold);border-radius:9px;padding:8px 14px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;font-family:'Nunito',sans-serif;min-width:64px;">Enable</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PWA INSTALL BANNER ===== -->
+<div id="pwaBar" style="position:fixed;bottom:80px;left:0;right:0;z-index:800;padding:0 12px;display:none;">
+  <div style="background:linear-gradient(145deg,rgba(20,15,10,.98),rgba(12,10,6,.99));border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:16px;padding:13px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 25px rgba(0,0,0,.7);position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:var(--carbon);pointer-events:none;opacity:.4;"></div>
+    <!-- Shimmer line -->
+    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(200,149,108,.8),transparent);"></div>
+    <div style="font-size:30px;flex-shrink:0;position:relative;z-index:1;filter:drop-shadow(0 0 8px rgba(200,149,108,.5));">⚡</div>
+    <div style="flex:1;position:relative;z-index:1;">
+      <div style="font-size:13px;font-weight:800;color:var(--text);">ZAP App Install Karein 📱</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px;">Real app jaisa — offline bhi kaam kare</div>
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0;position:relative;z-index:1;">
+      <button onclick="installPWA()" style="background:var(--grad-gold);color:var(--dark);border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;letter-spacing:.5px;">Install</button>
+      <button onclick="document.getElementById('pwaBar').style.display='none';localStorage.setItem('zap_pwa_dismissed','1')" style="background:rgba(200,149,108,.08);border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:8px 10px;cursor:pointer;font-size:14px;">✕</button>
+    </div>
   </div>
 </div>
 
@@ -1729,6 +1765,16 @@ function renderProfile() {
         <div class="pmenu-txt"><div class="pmenu-title">Admin Panel</div><div class="pmenu-sub">Store manage karein</div></div>
         <i class="fas fa-chevron-right" style="color:var(--muted);font-size:12px;"></i>
       </div>`:''}
+      <div class="pmenu-item" onclick="installPWA()">
+        <div class="pmenu-ico" style="background:rgba(200,149,108,.1);color:var(--gold);"><i class="fas fa-download"></i></div>
+        <div class="pmenu-txt"><div class="pmenu-title">App Install Karein 📱</div><div class="pmenu-sub">Phone pe ZAP install karo</div></div>
+        <i class="fas fa-chevron-right" style="color:var(--muted);font-size:12px;position:relative;z-index:1;"></i>
+      </div>
+      <div class="pmenu-item" onclick="subscribePush()">
+        <div class="pmenu-ico" style="background:rgba(200,149,108,.1);color:var(--gold);"><i class="fas fa-bell"></i></div>
+        <div class="pmenu-txt"><div class="pmenu-title">Push Notifications 🔔</div><div class="pmenu-sub" id="pushToggleBtn">Tap karein enable karne ke liye</div></div>
+        <i class="fas fa-chevron-right" style="color:var(--muted);font-size:12px;position:relative;z-index:1;"></i>
+      </div>
       <div class="pmenu-item" onclick="doLogout()" style="border-color:rgba(255,45,85,.25);">
         <div class="pmenu-ico" style="background:rgba(255,45,85,.15);color:var(--r);"><i class="fas fa-sign-out-alt"></i></div>
         <div class="pmenu-txt"><div class="pmenu-title" style="color:var(--r);">Logout</div></div>
@@ -1768,9 +1814,12 @@ function doLogin() {
     updateBadges();
     toast('Welcome back, '+user.name+'! ⚡','s');
     showPage('home');
-    // Show PWA banner if available
+    // Show install bar always (3 sec after login)
     setTimeout(() => {
-      if(_pwaPrompt) { const bar=document.getElementById('pwaBar'); if(bar) bar.style.display='block'; }
+      const bar = document.getElementById('pwaBar');
+      if(bar && localStorage.getItem('zap_installed') !== 'yes') {
+        bar.style.display = 'block';
+      }
     }, 3000);
   } catch(e) { toast('Login mein error aaya. Try again.','e'); }
 }
@@ -1937,7 +1986,26 @@ function adminTab(tab,el) {
 
 async function updateStatus(uid,oid,status) {
   const arr=S.orders[uid]; if(!arr) return;
-  const o=arr.find(x=>x.id===oid); if(o) { o.status=status; sl('zap_o',S.orders); await fbW('/zap/orders',S.orders); toast('✅ Status updated!','s'); }
+  const o=arr.find(x=>x.id===oid);
+  if(o) {
+    o.status=status;
+    sl('zap_o',S.orders);
+    await fbW('/zap/orders',S.orders);
+    toast('✅ Status updated!','s');
+    // Push notification to customer
+    const statusMsg = {
+      confirmed: '✅ Order confirm ho gaya!',
+      packed: '📦 Order pack ho gaya!',
+      shipped: '🚛 Order ship ho gaya — raste mein hai!',
+      out_for_delivery: '🛵 Delivery boy aa raha hai!',
+      delivered: '🎉 Order deliver ho gaya!',
+      cancelled: '❌ Order cancel ho gaya.'
+    };
+    if(statusMsg[status]) {
+      addNotif('Order Update', statusMsg[status] + ' Order: ' + oid, '📦');
+      sendPushNotif('Order Update', statusMsg[status]);
+    }
+  }
 }
 
 function openAddProd() {
@@ -2126,32 +2194,152 @@ function checkBanned(username) {
 // PWA INSTALL
 // ================================================================
 let _pwaPrompt = null;
+
+// ================================================================
+// PWA INSTALL
+// ================================================================
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _pwaPrompt = e;
-  const bar = document.getElementById('pwaBar');
-  if(bar && S.user) bar.style.display = 'block';
+  // Show install bar immediately — no login required
+  showInstallBar();
 });
 
-function installPWA() {
-  if(!_pwaPrompt) {
-    toast('Browser mein manually "Add to Home Screen" select karein!', 'i');
-    return;
+function showInstallBar() {
+  const bar = document.getElementById('pwaBar');
+  if(bar && localStorage.getItem('zap_installed') !== 'yes') {
+    bar.style.display = 'block';
   }
-  _pwaPrompt.prompt();
-  _pwaPrompt.userChoice.then(r => {
-    if(r.outcome === 'accepted') {
-      toast('✅ ZAP install ho gaya!', 's');
-      document.getElementById('pwaBar').style.display = 'none';
-    }
-    _pwaPrompt = null;
-  });
+}
+
+function installPWA() {
+  if(_pwaPrompt) {
+    _pwaPrompt.prompt();
+    _pwaPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted') {
+        localStorage.setItem('zap_installed', 'yes');
+        toast('✅ ZAP install ho gaya! Home screen check karein.', 's');
+        document.getElementById('pwaBar').style.display = 'none';
+        addNotif('ZAP Installed! 🎉', 'App successfully install ho gaya!', '📱');
+      }
+      _pwaPrompt = null;
+    });
+  } else {
+    // Manual install guide
+    showInstallGuide();
+  }
+}
+
+function showInstallGuide() {
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isSamsung = /SamsungBrowser/.test(navigator.userAgent);
+  let msg = '';
+  if(isIOS) {
+    msg = '📱 iPhone Install:\n1. Safari mein kholo\n2. Share button tap karo (box with arrow)\n3. "Add to Home Screen" select karo\n4. "Add" tap karo';
+  } else if(isSamsung) {
+    msg = '📱 Samsung Install:\n1. 3 dots menu tap karo\n2. "Add page to" select karo\n3. "Home screen" select karo';
+  } else {
+    msg = '📱 Chrome Install:\n1. 3 dots menu tap karo (⋮)\n2. "Add to Home screen" select karo\n3. "Add" tap karo';
+  }
+  alert(msg);
 }
 
 window.addEventListener('appinstalled', () => {
+  localStorage.setItem('zap_installed', 'yes');
   toast('✅ ZAP phone pe install ho gaya!', 's');
   document.getElementById('pwaBar').style.display = 'none';
 });
+
+// ================================================================
+// PUSH NOTIFICATIONS — Real Browser Push
+// ================================================================
+const VAPID_PUBLIC = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U';
+
+async function subscribePush() {
+  try {
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      toast('Aapka browser push notifications support nahi karta', 'w');
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted') {
+      toast('Notifications allow karein settings mein', 'w');
+      return;
+    }
+    toast('✅ Notifications enable ho gayi!', 's');
+    sl('zap_push_enabled', true);
+    updatePushToggle(true);
+  } catch(e) {
+    toast('Notification setup mein error', 'e');
+  }
+}
+
+function sendPushNotif(title, body, icon='') {
+  if(Notification.permission === 'granted') {
+    try {
+      new Notification('ZAP ⚡ ' + title, {
+        body: body,
+        icon: icon || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%230a0a0a"/><text y=".85em" font-size="72" x="14">⚡</text></svg>',
+        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="5" fill="%23c8956c"/><text y=".85em" font-size="72" x="14">⚡</text></svg>',
+        vibrate: [200, 100, 200],
+        tag: 'zap-notif',
+        requireInteraction: false
+      });
+    } catch(e) {}
+  }
+}
+
+function updatePushToggle(enabled) {
+  const btn = document.getElementById('pushToggleBtn');
+  if(btn) {
+    btn.textContent = enabled ? '🔔 ON' : '🔕 OFF';
+    btn.style.color = enabled ? 'var(--gold)' : 'var(--muted)';
+  }
+}
+
+// Override addNotif to also send push
+const _origAddNotif = addNotif;
+function addNotif(title, msg, ico) {
+  _origAddNotif(title, msg, ico);
+  if(gl('zap_push_enabled', false)) {
+    sendPushNotif(title, msg);
+  }
+}
+
+// Toggle push notifications
+async function togglePushNotif(btn) {
+  const enabled = gl('zap_push_enabled', false);
+  if(enabled && Notification.permission === 'granted') {
+    // Disable
+    sl('zap_push_enabled', false);
+    if(btn) { btn.textContent = 'Enable'; btn.style.background = 'rgba(200,149,108,.1)'; btn.style.color = 'var(--gold)'; }
+    toast('🔕 Notifications disable ho gayi', 'i');
+  } else {
+    // Enable
+    const perm = await Notification.requestPermission();
+    if(perm === 'granted') {
+      sl('zap_push_enabled', true);
+      if(btn) { btn.textContent = 'ON ✓'; btn.style.background = 'var(--grad-gold)'; btn.style.color = 'var(--dark)'; }
+      toast('✅ Notifications enable ho gayi!', 's');
+      // Test notification
+      setTimeout(() => sendPushNotif('Welcome to ZAP! ⚡', 'Orders aur deals ki notifications milti rahengi.'), 1000);
+    } else {
+      toast('❌ Permission denied — Settings se allow karein', 'e');
+    }
+  }
+}
+
+// Check push status on load
+function initPush() {
+  const enabled = gl('zap_push_enabled', false);
+  const btn = document.getElementById('pushMainBtn');
+  if(enabled && Notification.permission === 'granted') {
+    if(btn) { btn.textContent = 'ON ✓'; btn.style.background = 'var(--grad-gold)'; btn.style.color = 'var(--dark)'; }
+    updatePushToggle(true);
+  } else {
+    sl('zap_push_enabled', false);
+  }
+}
 
 // ================================================================
 // PASSWORD TOGGLE (eye button)
@@ -2195,7 +2383,27 @@ document.addEventListener('keydown', e => {
 // BOOT
 // ================================================================
 runSplash(initApp);
-Notification.requestPermission();
+initPush();
+
+// Show install + push bar after 2 sec — always show
+setTimeout(() => {
+  if(localStorage.getItem('zap_installed') !== 'yes' || Notification.permission !== 'granted') {
+    const bar = document.getElementById('pwaBar');
+    if(bar) bar.style.display = 'block';
+  }
+}, 2000);
+
+// Ask notification permission after splash
+setTimeout(() => {
+  if(Notification.permission === 'default') {
+    Notification.requestPermission().then(p => {
+      if(p === 'granted') {
+        sl('zap_push_enabled', true);
+        toast('🔔 Notifications enable ho gayi!', 's');
+      }
+    });
+  }
+}, 4000);
 
 </script>
 </body>
