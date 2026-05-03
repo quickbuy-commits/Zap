@@ -1272,11 +1272,49 @@ select.inp{cursor:pointer;}
 <script>
 
 // ================================================================
-// FIREBASE
+// FIREBASE — Bulletproof System
 // ================================================================
 const FB = 'https://quicy-buy-default-rtdb.asia-southeast1.firebasedatabase.app';
-const fbR = async p => { try{const r=await fetch(FB+p+'.json');if(!r.ok)return null;return await r.json();}catch{return null;} };
-const fbW = async (p,d) => { try{const r=await fetch(FB+p+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});return r.ok;}catch{return false;} };
+
+async function fbR(path) {
+  try {
+    const res = await fetch(FB + path + '.json', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
+    });
+    if(!res.ok) { console.log('fbR failed:', res.status, path); return null; }
+    const data = await res.json();
+    return data;
+  } catch(e) {
+    console.log('fbR error:', path, e.message);
+    return null;
+  }
+}
+
+async function fbW(path, data) {
+  try {
+    const res = await fetch(FB + path + '.json', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    if(res.ok) {
+      console.log('✅ fbW success:', path, typeof data === 'object' ? (Array.isArray(data) ? data.length + ' items' : Object.keys(data).length + ' keys') : data);
+      return true;
+    } else {
+      const txt = await res.text();
+      console.log('❌ fbW failed:', res.status, path, txt);
+      return false;
+    }
+  } catch(e) {
+    console.log('❌ fbW error:', path, e.message);
+    return false;
+  }
+}
 
 // ================================================================
 // SECURITY HELPERS
@@ -1368,8 +1406,18 @@ function initApp() {
   S.users = gl('zap_u', {
     admin:{username:'admin',password:'admin123',name:'Admin',email:'admin@zap.com',phone:'9800000000',role:'admin',joined:'2024-01-01'}
   });
+  // Load products - check backup if main is empty
   S.products = gl('zap_p', []);
-  S.orders   = gl('zap_o', {});
+  if(S.products.length === 0) {
+    const backup = localStorage.getItem('zap_p_backup');
+    if(backup) {
+      try { 
+        const bp = JSON.parse(backup);
+        if(bp && bp.length > 0) { S.products = bp; sl('zap_p', bp); }
+      } catch(e) {}
+    }
+  }
+  S.orders = gl('zap_o', {});
 
   try {
     const saved = gl('zap_session', null);
@@ -1387,7 +1435,9 @@ function initApp() {
 
   syncFirebase();
   startTimer();
-  setInterval(syncFirebase, 15000);
+  // Sync on load + har 30 sec (safe - local first)
+setTimeout(syncFirebase, 3000);
+setInterval(syncFirebase, 30000);
   // Session check every minute
   setInterval(() => {
     const t = parseInt(localStorage.getItem('zap_login_t')||'0');
@@ -1399,27 +1449,74 @@ function initApp() {
 // FIREBASE SYNC
 // ================================================================
 async function syncFirebase() {
-  try {
-    const p = await fbR('/zap/products');
-    if(p && Array.isArray(p) && p.length > 0) { S.products=p; sl('zap_p',p); }
-    const o = await fbR('/zap/orders');
-    if(o && typeof o==='object') { S.orders=o; sl('zap_o',o); }
-    const u = await fbR('/zap/users');
-    if(u && typeof u==='object') { S.users={...S.users,...u}; sl('zap_u',S.users); }
-    S.fbOk = true; updateFbStatus(true);
-    const ap = document.querySelector('.page.on');
-    if(ap?.id==='pg-home') renderHome();
-    if(ap?.id==='pg-admin') renderAdmin();
-  } catch(e) { S.fbOk=false; updateFbStatus(false); }
+  console.log('🔄 Syncing Firebase...');
+  
+  // Step 1: Products sync
+  const fbProds = await fbR('/zap/products');
+  if(fbProds && Array.isArray(fbProds) && fbProds.length > 0) {
+    // Firebase mein products hain
+    if(fbProds.length >= S.products.length) {
+      console.log('📥 Loading', fbProds.length, 'products from Firebase');
+      S.products = fbProds;
+      sl('zap_p', fbProds);
+      localStorage.setItem('zap_p_backup', JSON.stringify(fbProds));
+    }
+  } else if(S.products.length > 0) {
+    // Firebase empty — local push karo
+    console.log('📤 Pushing', S.products.length, 'products to Firebase');
+    await fbW('/zap/products', S.products);
+  }
+
+  // Step 2: Orders sync
+  const fbOrds = await fbR('/zap/orders');
+  if(fbOrds && typeof fbOrds === 'object' && Object.keys(fbOrds).length > 0) {
+    S.orders = fbOrds;
+    sl('zap_o', fbOrds);
+  }
+
+  // Step 3: Users sync
+  const fbUsers = await fbR('/zap/users');
+  if(fbUsers && typeof fbUsers === 'object' && Object.keys(fbUsers).length > 0) {
+    S.users = {...S.users, ...fbUsers};
+    sl('zap_u', S.users);
+  }
+
+  S.fbOk = true;
+  updateFbStatus(true);
+  
+  // Refresh UI
+  const ap = document.querySelector('.page.on');
+  if(ap?.id === 'pg-home') renderHome();
+  if(ap?.id === 'pg-admin') renderAdmin();
+  
+  console.log('✅ Sync done! Products:', S.products.length);
 }
 
 async function saveAll() {
-  sl('zap_p',S.products); sl('zap_o',S.orders); sl('zap_u',S.users);
-  const ok = await fbW('/zap/products', S.products);
-  await fbW('/zap/orders', S.orders);
-  await fbW('/zap/users', S.users);
-  S.fbOk=ok; updateFbStatus(ok);
-  return ok;
+  // LOCAL — turant, hamesha
+  sl('zap_p', S.products);
+  sl('zap_o', S.orders);
+  sl('zap_u', S.users);
+  localStorage.setItem('zap_p_backup', JSON.stringify(S.products));
+  
+  console.log('💾 Saving', S.products.length, 'products...');
+  
+  // Firebase — sab ek saath
+  const [p1, p2, p3] = await Promise.all([
+    fbW('/zap/products', S.products),
+    fbW('/zap/orders', S.orders),
+    fbW('/zap/users', S.users)
+  ]);
+  
+  if(p1) {
+    console.log('✅ All saved to Firebase!');
+    S.fbOk = true;
+  } else {
+    console.log('⚠️ Firebase save failed — local hai');
+    S.fbOk = false;
+  }
+  updateFbStatus(S.fbOk);
+  return true;
 }
 
 async function forceSyncNow() {
